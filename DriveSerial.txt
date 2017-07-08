@@ -1,0 +1,172 @@
+//*****************************************************************************
+//                        	LEIA-ME
+//*****************************************************************************
+
+//****************************************************************************
+//                        Abre uma Porta Serial
+//*****************************************************************************
+
+Comentários sobre o uso:
+*Chamada da função:
+var
+Porta_COM: string;
+Resultado: integer;
+Resultado:= AbrirPortaSerial(Porta_COM);
+NomePorta := 'COM1';  COM1, COM2...COM9 ou portas virtuais.
+*Retorno da função (integer):
+1: Abriu a porta corretamente
+2: A porta selecionada não existe
+3: A porta selecionada está em uso.
+
+//*********************************************************************
+//                    CONFIGURA UART.
+//*********************************************************************
+
+Tabela de Argumentos para velocidade de baud:
+1:CBR_110
+2:CBR_300
+3:CBR_600
+4:CBR_1200
+5:CBR_2400
+6:CBR_4800
+7:CBR_9600
+8:CBR_14400
+9:CBR_19200
+10:CBR_38400
+11:CBR_57600
+12:CBR_115200
+13:CBR_128000
+14:CBR_256000
+Tamanho da Palavra de Transmissão: Geralmente 8 bits.
+Tabela de configuração de Paridade:
+1:EVENPARITY - Even parity.
+2:MARKPARITY - Mark parity.
+3:NOPARITY   - No parity.
+4:ODDPARITY  - Odd parity.
+5:SPACEPARITY- Space parity.
+Tabela de configuração de Stop Bit
+1:ONESTOPBIT - 1 stop bit.
+2:ONE5STOPBITS - 1.5 stop bits.
+3:TWOSTOPBITS  - 2 stop bits.
+
+Exemplo de Chamada:
+var
+Flag_configura: boolean;
+...
+Flag_configura:=ConfiguraUART(2,8,3,1);
+  if (Flag_configura<>false) then
+  begin
+    WriteLn('A porta foi configurada corretamente.');
+  end
+  else
+  begin
+    WriteLn('Erro de configuração.');
+  end;
+
+
+//*********************************************************************
+//                    FECHA A PORTA SERIAL
+//*********************************************************************
+
+Comentários sobre o uso:
+*Chamada da função:
+FecharPorta;
+
+//***************************************************************************
+//            CONFIGURA OS TIMEOUTS (READ/WRITE) DA PORTA
+//***************************************************************************
+
+Comentários sobre o uso:
+*Chamada da função:
+var
+Resultado: boolean;
+Resultado:= config_porta();
+*Retorno da função (boolean):
+false(0): Houve erro na configuração.
+true(Valor diferente de 0): Os time-outs foram configurados corretamentes.
+}
+//**********************************************************************
+//                        LE PORTA SERIAL
+//***********************************************************************
+{
+TIPOS DE CHAMADAS:
+1)LÊ 1 BYTE DA PORTA SERIAL
+le_porta;
+        if  (BytesLidos<>0) then
+        begin
+        WriteLn('Recebido Byte: '+BufferRecebe[0]);
+        WriteLn('Bytes para ler:', inttostr(BytesLidos));
+        BytesLidos:=0;
+        end;
+
+2)LÊ 1 BYTE DA PORTA SERIAL EM FORMATO NUMÉRICO
+var
+Valor Recebido: integer;
+...
+le_porta;
+        if  (BytesLidos<>0) then
+        begin
+        Valor_Recebido:= int8(BufferRecebe[0]);
+        WriteLn('Valor Recebido:', inttostr(Valor_Recebido));
+        BytesLidos:=0;
+        end;
+
+3)PROCEDIMENTO PARA CHAMADA USANDO INTERRUPÇÃO DO COMPOMENTE TTIMER
+procedure TForm1.Timer1Timer(Sender: TObject);
+begin
+le_porta;
+        if  (BytesLidos<>0) then
+        begin
+        label5.Caption:=BufferRecebe[0];
+        label7.Caption:=inttostr(BytesLidos);
+        BytesLidos:=0;
+        end;
+end;
+}
+
+//***************************************************************************
+//               ENVIAR UMA STRING PELA PORTA SERIAL
+//***************************************************************************
+{
+A FUNÇÃO RETORNA A QUANTIDADE DE BYTES ESCRITOS EM UMA DWORD
+BufferEnvia --> Para armazenar a string a ser enviada.
+
+EXEMPLO DE CHAMADA
+Var
+Envia_string: AnsiString;
+Bytes_enviados_flag: integer;
+...
+Envia_string:='Teste';
+Bytes_enviados_flag:=envia_serial(Envia_string);
+WriteLn('Numero de Bytes Enviados:', inttostr(Bytes_enviados_flag));
+}
+
+//*********************************************************************
+//        TRANSMITE 1 BYTE PELA PORTA SERIAL
+//*********************************************************************
+{  Esta função e usada para transmitir um caracter através da linha TXD.
+Ela coloca o caracter a ser transmitido a frente de quaisquer caracteres
+existentes no buffer de transmissão. Se houver sucesso na transmissão,
+TransmitCommChar() retorna um valor diferente de zero, caso contrário,
+retorna um valor igual a zero.
+  Ela é útil também para enviar caracter de interrupção de transmissão
+(como um CTRL+C) diretamente para a porta serial.
+EXEMPLO DE CHAMADA:
+   var
+   Envia: AnsiChar;
+   Flag_envia: boolean
+   ....
+   Envia:='T';         //Tem  que declarar como AnsiChar Antes, não pode
+                       //passar direto entre aspas
+   ... ou
+   Envia:=#65;         Para enviar em formato numérico
+   ...
+   TX_catacter(Envia);
+   if (Flag_envia<>false) then
+  begin
+    WriteLn('O caractere foi enviado cerretamente.');
+  end
+  else
+  begin
+    WriteLn('O caractere não foi enviado.');
+  end;
