@@ -55,7 +55,7 @@ NomePorta := 'COM1';  COM1, COM2...COM9 ou portas virtuais.
 2: A porta selecionada não existe
 3: A porta selecionada está em uso.
 }
-Function AbrirPortaSerial(NomePorta:String):integer; export;
+Function AbrirPortaSerial(NomePorta:String):integer; stdcall; export;
 Begin
    hCom := CreateFile(
                       PChar(NomePorta),   //Nome da porta (tipo caracteres).
@@ -127,7 +127,7 @@ Flag_configura:=ConfiguraUART(2,8,3,1);
 }
 
 Function ConfiguraUART
-(bauld:integer; Byte_Size: Byte; Paridade:integer; Stop_bit:integer):boolean; export;
+(bauld:integer; Byte_Size: Byte; Paridade:integer; Stop_bit:integer):boolean; stdcall; export;
 begin
    if not GetCommState(hCom, dcb) then  //Obtém a configuração atual.
       result:= false;
@@ -263,7 +263,7 @@ Begin
 End;
 exports le_porta;
 
-function recebe_dado(count:integer): char; export;
+function recebe_dado(count:integer): char; stdcall; export;
 begin
   result:= BufferRecebe[count];
 end;
